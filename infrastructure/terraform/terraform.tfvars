@@ -1,0 +1,49 @@
+vm-specification = {
+  "vm1" = {
+    vm-location                      = "westeurope"
+    environment                      = "develop"
+    project                          = "lvtest"
+    resource-group-name              = "lvtest-rg"
+    vm-size                          = "Standard_B2ms"
+    os-disk-caching                  = "ReadWrite"
+    os-disk-storage-account-type     = "Standard_LRS"
+    os-disk-size-gb                  = 30
+    source-image-reference-publisher = "Canonical"
+    source-image-reference-offer     = "0001-com-ubuntu-server-jammy"
+    source-image-reference-sku       = "22_04-lts"
+    source-image-reference-version   = "latest"
+    computer-name                    = "lvtest-vm"
+    tags = {
+      "Environment" = "dev"
+      "Project"     = "lvtest"
+      "Deployment"  = "Terraform"
+      "Location"    = "West Europe"
+    }
+  }
+}
+
+resource-group-name   = "lvtest-rg-1"
+vnet-name             = "lvtest-vnet-1"
+vm-location           = "westeurope"
+vnet-address-space    = ["10.2.0.0/16"]
+subnet-name           = "lvtest-subnet-1"
+subnet-address-prefix = ["10.2.0.0/24"]
+storage-account-name                = "tehcoopstaging"
+storage-account-rg-name             = "rg-prod-test"
+# storage-account-name                = "louisvilleadmin"
+# storage-account-rg-name             = "general-rg"
+subscription-id                     = "d60e0c8d-4247-4345-8ec3-92de221c0934"
+# subscription-id = "30d291f6-1368-4890-b6f6-1482361101fb"
+# storage-account-name                = "tehcoopstaging"
+# storage-account-rg-name             = "rg-prod-test"
+# storage-account-name                = "louisvilleadmin"
+# storage-account-rg-name             = "general-rg"
+nsg-rule-name                       = "ssh"
+nsg-rule-priority                   = 100
+nsg-rule-direction                  = "Inbound"
+nsg-rule-access                     = "Allow"
+nsg-rule-protocol                   = "Tcp"
+nsg-rule-source-port-range          = "*"
+nsg-rule-destination-port-range     = "22"
+nsg-rule-source-address-prefix      = "*"
+nsg-rule-destination-address-prefix = "*"
