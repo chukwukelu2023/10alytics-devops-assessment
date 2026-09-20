@@ -130,6 +130,9 @@ jobs:
           target ansible_host=${VM_HOST} ansible_user=${VM_USERNAME} ansible_ssh_private_key_file=~/.ssh/ansible_key
           EOF
 
+          echo "Target Host: ${VM_HOST}"
+          echo "Target Username: ${VM_USERNAME}"
+
       - name: Test SSH connection
         # working-directory: infrastructure/ansible
         run: |
