@@ -1,0 +1,12 @@
+---
+- hosts: webserver
+  become: true
+  vars:
+    repo_url: "https://github.com/chukwukelu2023/DevOps-Stage-6.git"
+    repo_dest: "/home/ubuntu"
+    repo_branch: "main"
+  roles:
+    - role: dependencies
+      tags: dependencies
+    - role: deploy
+      tags: deploy

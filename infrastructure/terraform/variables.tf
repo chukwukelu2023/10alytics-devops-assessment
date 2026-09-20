@@ -28,6 +28,7 @@ variable "vm-specification" {
     ip-configuration-name                = optional(string)
     private-ip-allocation                = optional(string)
     public-ip-address-id                 = optional(string)
+    repository                           = optional(string)
   }))
 }
 
@@ -83,47 +84,78 @@ variable "storage-account-rg-name" {
   description = "The name of the resource group in which to create the storage account for boot diagnostics."
   default     = null
 }
-variable "nsg-rule-name" {
-  type        = string
-  description = "The name of the network security group rule."
+variable "nsg-rules" {
+  type = map(object({
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source-port-range          = string
+    destination-port-range     = string
+    source-address-prefix      = string
+    destination-address-prefix = string
+  }))
+  description = "Network security group rules, keyed by rule name (e.g. ssh, http, https). Each entry becomes one security_rule block on the NSG; priorities must be unique."
 }
 
-variable "nsg-rule-priority" {
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare Zone Id"
+}
+
+variable "cloudflare_name" {
+  type        = string
+  description = "(String) DNS record name (or @ for the zone apex) in Punycode."
+}
+
+variable "cloudflare_ttl" {
   type        = number
-  description = "The priority of the network security group rule. Lower numbers are evaluated first."
+  description = "(Number) Time To Live (TTL) of the DNS record in seconds. Setting to 1 means 'automatic'. Value must be between 60 and 86400, with the minimum reduced to 30 for Enterprise zones."
+  default     = 1
 }
 
-variable "nsg-rule-direction" {
+variable "cloudflare_record_type" {
   type        = string
-  description = "The direction of the network security group rule. Possible values are Inbound and Outbound."
+  description = "(String) Record type. Available values: A, AAAA, CNAME, MX, NS, OPENPGPKEY, PTR, TXT, CAA, CERT, DNSKEY, DS, HTTPS, LOC, NAPTR, SMIMEA, SRV, SSHFP, SVCB, TLSA, URI."
+
+  validation {
+    condition     = contains(["A", "AAAA", "CNAME", "MX", "NS", "OPENPGPKEY", "PTR", "TXT", "CAA", "CERT", "DNSKEY", "DS", "HTTPS", "LOC", "NAPTR", "SMIMEA", "SRV", "SSHFP", "SVCB", "TLSA", "URI"], upper(var.cloudflare_record_type))
+    error_message = "cloudflare_record_type must be one of: A, AAAA, CNAME, MX, NS, OPENPGPKEY, PTR, TXT, CAA, CERT, DNSKEY, DS, HTTPS, LOC, NAPTR, SMIMEA, SRV, SSHFP, SVCB, TLSA, or URI."
+  }
 }
 
-variable "nsg-rule-access" {
-  type        = string
-  description = "Whether traffic matching the rule is allowed or denied. Possible values are Allow and Deny."
+variable "cloudflare_comment" {
+  type    = string
+  default = "Description of the dns record"
 }
 
-variable "nsg-rule-protocol" {
-  type        = string
-  description = "The network protocol the rule applies to. Possible values are Tcp, Udp, Icmp, Esp, Ah and *."
+variable "cloudflare_proxy" {
+  type        = bool
+  description = "To show if cloudflare proxy setting will be turned on or off"
+  default     = false
 }
 
-variable "nsg-rule-source-port-range" {
-  type        = string
-  description = "The source port or port range the rule applies to. A single port, a range such as 1000-2000, or * for any."
-}
+# variable "github_token" {
+#   type        = string
+#   description = "Github Authentication Token"
+# }
 
-variable "nsg-rule-destination-port-range" {
-  type        = string
-  description = "The destination port or port range the rule applies to. A single port, a range such as 1000-2000, or * for any."
-}
+# variable "github_repository" {
+#   type        = string
+#   description = "(Required) Name of the repository."
+# }
 
-variable "nsg-rule-source-address-prefix" {
-  type        = string
-  description = "The source address prefix the rule applies to. A CIDR, an Azure service tag, or * for any."
-}
+# variable "github_secret_name" {
+#   type        = string
+#   description = "(Required) Name of the secret."
+# }
 
-variable "nsg-rule-destination-address-prefix" {
-  type        = string
-  description = "The destination address prefix the rule applies to. A CIDR, an Azure service tag, or * for any."
-}
+# variable "github_secret_value" {
+#   type        = string
+#   description = "(Optional) Plaintext value of the secret to be encrypted. This conflicts with value_encrypted, encrypted_value & plaintext_value"
+# }
+
+# variable "cloudflare_api_token" {
+#   type        = string
+#   description = "Clouflare Token for Atuntication"
+# }

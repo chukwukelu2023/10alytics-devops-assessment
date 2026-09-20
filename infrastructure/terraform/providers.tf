@@ -9,19 +9,38 @@ terraform {
       source  = "azure/azapi"
       version = "~>1.5"
     }
+
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "5.13.0"
+    }
+
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
+
   }
 
-#   backend "azurerm" {
-#     resource_group_name  = "general-rg"
-#     storage_account_name = "louisvilleadmin"
-#     container_name       = "10alytics"
-#     key                  = "terraform.tfstate"
-#   }
+  backend "azurerm" {
+    resource_group_name  = "rg-prod-test"
+    storage_account_name = "tehcoopstaging"
+    container_name       = "10alytics"
+    key                  = "terraform.tfstate"
+  }
 }
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
-  subscription_id = var.subscription-id
+#   subscription_id = var.subscription-id
   features {
   }
+}
+
+provider "github" {
+  #   token = var.github_token # or `GITHUB_TOKEN`
+}
+
+provider "cloudflare" {
+  #   api_token = var.cloudflare_api_token
 }

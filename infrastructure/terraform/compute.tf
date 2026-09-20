@@ -26,13 +26,13 @@ resource "azurerm_public_ip" "this" {
 }
 
 module "virtual_machine" {
-  for_each            = var.vm-specification
-  source              = "git::https://github.com/chukwukelu2023/linux-server-module.git?ref=v1.0.0"
-  vm-location         = each.value.vm-location
-  environment         = each.value.environment
-  project             = each.value.project
-  resource-group-name = azurerm_resource_group.this.name
-  vm-size             = each.value.vm-size
+  for_each                           = var.vm-specification
+  source                             = "git::https://github.com/chukwukelu2023/linux-server-module.git?ref=v1.0.0"
+  vm-location                        = each.value.vm-location
+  environment                        = each.value.environment
+  project                            = each.value.project
+  resource-group-name                = azurerm_resource_group.this.name
+  vm-size                            = each.value.vm-size
   os_disk_caching                    = each.value.os-disk-caching
   os_disk_storage_account_type       = each.value.os-disk-storage-account-type
   os_disk_size_gb                    = each.value.os-disk-size-gb
@@ -54,16 +54,20 @@ resource "azurerm_network_security_group" "this" {
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
 
-  security_rule {
-    name                       = var.nsg-rule-name
-    priority                   = var.nsg-rule-priority
-    direction                  = var.nsg-rule-direction
-    access                     = var.nsg-rule-access
-    protocol                   = var.nsg-rule-protocol
-    source_port_range          = var.nsg-rule-source-port-range
-    destination_port_range     = var.nsg-rule-destination-port-range
-    source_address_prefix      = var.nsg-rule-source-address-prefix
-    destination_address_prefix = var.nsg-rule-destination-address-prefix
+  dynamic "security_rule" {
+    for_each = var.nsg-rules
+
+    content {
+      name                       = security_rule.key
+      priority                   = security_rule.value.priority
+      direction                  = security_rule.value.direction
+      access                     = security_rule.value.access
+      protocol                   = security_rule.value.protocol
+      source_port_range          = security_rule.value.source-port-range
+      destination_port_range     = security_rule.value.destination-port-range
+      source_address_prefix      = security_rule.value.source-address-prefix
+      destination_address_prefix = security_rule.value.destination-address-prefix
+    }
   }
 }
 
