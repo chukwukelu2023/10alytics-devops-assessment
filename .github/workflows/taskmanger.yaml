@@ -123,10 +123,10 @@ jobs:
             cat docker-compose.yaml
 
             # Pull newly updated image tag and recreate only taskmanager-app
-            docker compose pull taskmanager-app
-            docker compose up -d taskmanager-app
+            sudo docker compose pull taskmanager-app
+            sudo docker compose up -d taskmanager-app
 
-            docker compose ps taskmanager-app
+            sudo docker compose ps taskmanager-app
 
             # Clean up old unused images
-            docker image prune -f
+            sudo docker image prune -f
