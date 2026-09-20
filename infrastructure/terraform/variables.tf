@@ -47,10 +47,10 @@ variable "vnet-name" {
   description = "The name of the virtual network in which to create the virtual machine."
 }
 
-variable "subscription-id" {
-  type        = string
-  description = "The subscription ID in which to create the virtual machine."
-}
+# variable "subscription-id" {
+#   type        = string
+#   description = "The subscription ID in which to create the virtual machine."
+# }
 
 variable "vnet-address-space" {
   type        = list(string)

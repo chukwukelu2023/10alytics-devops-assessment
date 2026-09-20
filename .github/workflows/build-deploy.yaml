@@ -8,13 +8,6 @@ env:
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   action:
-    #     type: choice
-    #     description: 'Select an action to perform'
-    #     options:
-    #       - apply
-    #     required: true
 
   push:
     branches:
