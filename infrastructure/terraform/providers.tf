@@ -11,10 +11,10 @@ terraform {
       version = "5.13.0"
     }
 
-    github = {
-      source  = "integrations/github"
-      version = "~> 6.0"
-    }
+    # github = {
+    #   source  = "integrations/github"
+    #   version = "~> 6.0"
+    # }
 
   }
 
@@ -26,17 +26,14 @@ terraform {
   }
 }
 
-# Configure the Microsoft Azure Provider
 provider "azurerm" {
-  #   subscription_id = var.subscription-id
   features {
   }
 }
 
-provider "github" {
-  #   token = var.github_token # or `GITHUB_TOKEN`
-}
+# provider "github" {
+#   #   token = var.github_token # or `GITHUB_TOKEN`
+# }
 
 provider "cloudflare" {
-  #   api_token = var.cloudflare_api_token
 }

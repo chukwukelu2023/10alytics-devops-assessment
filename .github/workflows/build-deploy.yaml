@@ -3,7 +3,7 @@ name: deploy resources
 env:
   TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+  # GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 on:
   workflow_dispatch:
 
@@ -16,6 +16,9 @@ permissions:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    outputs:
+      vm_host: ${{ steps.export_outputs.outputs.vm_host }}
+      vm_user: ${{ steps.export_outputs.outputs.vm_user }}
 
     defaults:
       run:
@@ -73,25 +76,11 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -input=false tfplan
 
-      - name: Verify Secret Presence and Value Length
-        env:
-          VM_HOST: ${{ secrets.SERVER_HOST }}
-          VM_USERNAME: ${{ secrets.SERVER_USER }}
+      - name: Export Outputs for Next Jobs
+        id: export_outputs
         run: |
-          if [ -z "$VM_HOST" ]; then
-            echo "ERROR: SERVER_HOST is empty or missing!"
-            exit 1
-          else
-            echo "SERVER_HOST is populated (Length: ${#VM_HOST} characters)."
-          fi
-
-          if [ -z "$VM_USERNAME" ]; then
-            echo "ERROR: SERVER_USER is empty or missing!"
-            exit 1
-          else
-            echo "SERVER_USER is populated (Length: ${#VM_USERNAME} characters)."
-          fi
-
+          echo "vm_host=$(terraform output -raw vm_public_ip)" >> $GITHUB_OUTPUT
+          echo "vm_user=$(terraform output -raw vm_admin_username)" >> $GITHUB_OUTPUT
   
 
   ansible:
@@ -141,16 +130,16 @@ jobs:
 
       - name: Create Ansible inventory
         env:
-          VM_HOST: ${{ secrets.SERVER_HOST }}
-          VM_USERNAME: ${{ secrets.SERVER_USER }}
+          VM_HOST: ${{ needs.terraform.outputs.vm_host }}
+          VM_USERNAME: ${{ needs.terraform.outputs.vm_user }}
         run: |
           cat > inventory.ini <<EOF
           [webserver]
           target ansible_host=${VM_HOST} ansible_user=${VM_USERNAME} ansible_ssh_private_key_file=~/.ssh/ansible_key
           EOF
 
-          echo "Target Host: ${VM_HOST}"
-          echo "Target Username: ${VM_USERNAME}"
+          echo "Target Host Length: ${#VM_HOST}"
+          echo "Target Username Length: ${#VM_USERNAME}
 
       - name: Test SSH connection
         # working-directory: infrastructure/ansible
