@@ -79,8 +79,8 @@ jobs:
       - name: Export Outputs for Next Jobs
         id: export_outputs
         run: |
-          echo "vm_host=$(terraform output -raw vm_public_ip)" >> $GITHUB_OUTPUT
-          echo "vm_user=$(terraform output -raw vm_admin_username)" >> $GITHUB_OUTPUT
+          echo "vm_host=$(terraform output -raw vm-public-ip)" >> $GITHUB_OUTPUT
+          echo "vm_user=$(terraform output -raw vm-admin-username)" >> $GITHUB_OUTPUT
   
 
   ansible:
