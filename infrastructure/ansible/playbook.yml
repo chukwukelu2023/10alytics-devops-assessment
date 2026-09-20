@@ -1,0 +1,8 @@
+---
+- hosts: webserver
+  become: true
+  roles:
+    - role: dependencies
+      tags: dependencies
+    - role: deploy
+      tags: deploy

@@ -1,0 +1,8 @@
+package_update: true
+package_upgrade: false
+
+packages:
+  - python3
+
+runcmd:
+  - python3 --version

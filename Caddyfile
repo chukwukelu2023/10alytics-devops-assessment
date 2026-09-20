@@ -1,0 +1,3 @@
+chukwukelu.name.ng {
+    reverse_proxy taskmanager-app:4500
+}
