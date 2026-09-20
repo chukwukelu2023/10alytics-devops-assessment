@@ -107,7 +107,7 @@ jobs:
         with:
           host: ${{ steps.tf_outputs.outputs.server_host }}
           username: ${{ steps.tf_outputs.outputs.server_user }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           source: "docker-compose.yaml"
           target: "/var/www/repo"
 
@@ -116,7 +116,7 @@ jobs:
         with:
           host: ${{ steps.tf_outputs.outputs.server_host }}
           username: ${{ steps.tf_outputs.outputs.server_user }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /var/www/repo
             cat docker-compose.yaml
