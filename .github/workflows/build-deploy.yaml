@@ -73,6 +73,25 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -input=false tfplan
 
+      - name: Verify Secret Presence and Value Length
+        env:
+          VM_HOST: ${{ secrets.SERVER_HOST }}
+          VM_USERNAME: ${{ secrets.SERVER_USER }}
+        run: |
+          if [ -z "$VM_HOST" ]; then
+            echo "ERROR: SERVER_HOST is empty or missing!"
+            exit 1
+          else
+            echo "SERVER_HOST is populated (Length: ${#VM_HOST} characters)."
+          fi
+
+          if [ -z "$VM_USERNAME" ]; then
+            echo "ERROR: SERVER_USER is empty or missing!"
+            exit 1
+          else
+            echo "SERVER_USER is populated (Length: ${#VM_USERNAME} characters)."
+          fi
+
   
 
   ansible:

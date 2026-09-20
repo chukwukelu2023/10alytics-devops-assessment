@@ -47,11 +47,6 @@ variable "vnet-name" {
   description = "The name of the virtual network in which to create the virtual machine."
 }
 
-# variable "subscription-id" {
-#   type        = string
-#   description = "The subscription ID in which to create the virtual machine."
-# }
-
 variable "vnet-address-space" {
   type        = list(string)
   description = "The address space of the virtual network."
@@ -134,33 +129,3 @@ variable "cloudflare_proxy" {
   description = "To show if cloudflare proxy setting will be turned on or off"
   default     = false
 }
-
-# variable "github_token" {
-#   type        = string
-#   description = "Github Authentication Token"
-# }
-
-# variable "github_repository" {
-#   type        = string
-#   description = "(Required) Name of the repository."
-# }
-
-# variable "github_secret_name" {
-#   type        = string
-#   description = "(Required) Name of the secret."
-# }
-
-# variable "github_secret_value" {
-#   type        = string
-#   description = "(Optional) Plaintext value of the secret to be encrypted. This conflicts with value_encrypted, encrypted_value & plaintext_value"
-# }
-
-# variable "cloudflare_api_token" {
-#   type        = string
-#   description = "Clouflare Token for Atuntication"
-# }
-
-# variable "ssh_public_key" {
-#   type      = string
-#   sensitive = true
-# }
