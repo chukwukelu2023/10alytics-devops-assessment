@@ -32,7 +32,7 @@ terraform {
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
-#   subscription_id = var.subscription-id
+  #   subscription_id = var.subscription-id
   features {
   }
 }
@@ -46,6 +46,8 @@ provider "cloudflare" {
 }
 
 provider "azapi" {
-#   use_cli = false
-#   use_msi = false
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
 }
