@@ -1,73 +1,16 @@
-name: Deploy Image To Server
+name: Rollback Deployment
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'task-app/**'
+    inputs:
+      image_tag:
+        description: 'Docker image tag to roll back to (e.g. oluchioraekwe/task-app:v12345 or oluchioraekwe/task-app:latest)'
+        required: true
+        type: string
 
 jobs:
-  build-node:
+  rollback:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-app
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: 'task-app/package-lock.json'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Build Node.js App
-        run: npm run build --if-present
-
-      - name: Run Tests
-        run: npm test --if-present
-
-  docker:
-    runs-on: ubuntu-latest
-    needs: build-node
-    outputs:
-      image_tag: oluchioraekwe/task-app:v${{ github.run_id }}  
-    defaults:
-      run:
-        working-directory: ./task-app
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        with:
-          context: ./task-app
-          push: true
-          tags: oluchioraekwe/task-app:v${{ github.run_id }}
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: docker
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -100,7 +43,7 @@ jobs:
       - name: Update taskmanager-app image in docker-compose.yaml
         uses: mikefarah/yq-action@v4.44.3
         with:
-          cmd: yq eval '.services.taskmanager-app.image = "${{ needs.docker.outputs.image_tag }}"' -i docker-compose.yaml
+          cmd: yq eval '.services.taskmanager-app.image = "${{ inputs.image_tag }}"' -i docker-compose.yaml
 
       - name: Copy docker-compose.yaml to server
         uses: appleboy/scp-action@v0.1.7
@@ -111,7 +54,7 @@ jobs:
           source: "docker-compose.yaml"
           target: "/var/www/repo"
 
-      - name: Deploy updated service
+      - name: Deploy rollback image
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ steps.tf_outputs.outputs.server_host }}
@@ -119,13 +62,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/repo
+            
+            echo "::notice::Rolling back taskmanager-app to image: ${{ inputs.image_tag }}"
             cat docker-compose.yaml
 
-            # Pull newly updated image tag and recreate only taskmanager-app
+            # Force pull specified image tag and recreate taskmanager-app container
             docker compose pull taskmanager-app
             docker compose up -d taskmanager-app
 
+            # Verify container status
             docker compose ps taskmanager-app
 
-            # Clean up old unused images
+            # Clean up dangling images
             docker image prune -f
