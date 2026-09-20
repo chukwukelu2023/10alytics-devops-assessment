@@ -101,6 +101,19 @@ jobs:
           printf '%s\n' "$VM_SSH_PRIVATE_KEY" > ~/.ssh/ansible_key
 
           chmod 600 ~/.ssh/ansible_key
+      - name: create .env
+        run: |
+          run: |
+            cat <<EOF > .env
+            PORT=${{ vars.PORT }}
+            DIALECT=${{ secrets.DIALECT }}
+            DATABASE=${{ secrets.DATABASE }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+            HOST=${{ secrets.HOST }}
+            DB_PORT=${{ secrets.DB_PORT}}
+            TOKEN_KEY=${{ secrets.TOKEN_KEY}}
+            EOF
 
       - name: Create Ansible inventory
         env:
@@ -133,8 +146,9 @@ jobs:
         run: |
           ansible-playbook playbook.yml
 
-      - name: Remove temporary SSH key
+      - name: Remove temporary files
         if: always()
         run: |
           rm -f ~/.ssh/ansible_key
           rm -f infrastructure/ansible/inventory.ini
+          rm -f .env

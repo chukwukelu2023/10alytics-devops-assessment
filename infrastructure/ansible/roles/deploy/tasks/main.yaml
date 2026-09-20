@@ -39,28 +39,66 @@
 #     state: present
 #     services: "{{ service_name | default(omit) }}"
 
+# - name: Create application directory
+#   ansible.builtin.file:
+#   path: /var/www/repo
+#   state: directory
+#   owner: root
+#   group: root
+#   mode: '0755'
+
+# - name: Copy Docker Compose file
+#   ansible.builtin.copy:
+#   src: "{{ playbook_dir }}/../../docker-compose.yaml"
+#   dest: /var/www/repo/docker-compose.yaml
+#   owner: root
+#   group: root
+#   mode: '0644'
+
+# - name: Verify Docker Compose file exists
+#   ansible.builtin.stat:
+#   path: /var/www/repo/docker-compose.yaml
+#   register: compose_file
+
+# - name: Fail if Docker Compose file is missing
+#   ansible.builtin.fail:
+#   msg: "Docker Compose file was not copied successfully!"
+#   when: not compose_file.stat.exists
+
 - name: Create application directory
   ansible.builtin.file:
-  path: /var/www/repo
-  state: directory
-  owner: root
-  group: root
-  mode: '0755'
+    path: /var/www/repo
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Copy Docker Compose file
   ansible.builtin.copy:
-  src: "{{ playbook_dir }}/../../docker-compose.yaml"
-  dest: /var/www/repo/docker-compose.yaml
-  owner: root
-  group: root
-  mode: '0644'
+    src: "{{ playbook_dir }}/../../docker-compose.yaml"
+    dest: /var/www/repo/docker-compose.yaml
+    owner: root
+    group: root
+    mode: '0644'
 
-- name: Verify Docker Compose file exists
-  ansible.builtin.stat:
-  path: /var/www/repo/docker-compose.yaml
-  register: compose_file
+- name: Copy environment file (.env)
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../.env"
+    dest: /var/www/repo/.env
+    owner: root
+    group: root
+    mode: '0600'
 
-- name: Fail if Docker Compose file is missing
-  ansible.builtin.fail:
-  msg: "Docker Compose file was not copied successfully!"
-  when: not compose_file.stat.exists
+- name: Copy Caddy configuration file
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../Caddyfile"
+    dest: /var/www/repo/Caddyfile
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start Docker Compose services
+  community.docker.docker_compose_v2:
+    project_src: /var/www/repo
+    state: present
+    pull: always

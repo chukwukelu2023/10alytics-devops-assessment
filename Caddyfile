@@ -1,4 +1,3 @@
-:80 {
-    root * /srv
-    file_server
+chukwukelu.name.ng {
+    reverse_proxy taskmanager-app:4500
 }
