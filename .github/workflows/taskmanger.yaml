@@ -98,7 +98,7 @@ jobs:
           echo "server_user=${SERVER_USER}" >> $GITHUB_OUTPUT
 
       - name: Update taskmanager-app image in docker-compose.yaml
-        uses: mikefarah/yq-action@v4.44.3
+        uses: mikefarah/yq@v4.44.3
         with:
           cmd: yq eval '.services.taskmanager-app.image = "${{ needs.docker.outputs.image_tag }}"' -i docker-compose.yaml
 
