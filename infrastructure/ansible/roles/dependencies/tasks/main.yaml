@@ -4,9 +4,11 @@
     update_cache: yes
   when: ansible_facts['os_family'] == 'Debian'
 
-- name: Install Git
+- name: Install Git and yq
   ansible.builtin.package:
-    name: git
+    name:
+      - git
+      - yq
     state: present
 
 - name: Install required packages
@@ -60,3 +62,14 @@
     name: docker
     state: started
     enabled: yes
+
+- name: Ensure docker group exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Add SSH user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes

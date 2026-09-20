@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  terraform:
+  terraform-destroy:
     runs-on: ubuntu-latest
 
     defaults:
@@ -23,6 +23,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup SSH Public Key
+        env:
+          SSH_KEY: ${{ secrets.PUBLIC_KEY }}
+        run: |
+          if [ -z "$SSH_KEY" ]; then
+            echo "ERROR: The 'SSH_PUBLIC_KEY' secret is missing or empty!"
+            exit 1
+          fi
+
+          echo "PUBLIC_KEY secret found."
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

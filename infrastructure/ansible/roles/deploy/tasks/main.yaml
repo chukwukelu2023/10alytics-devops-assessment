@@ -1,101 +1,35 @@
 ---
-# - name: Pull latest changes
-#   ansible.builtin.git:
-#     repo: "{{ repo_url }}"
-#     dest: "{{ repo_dest }}/DevOps-Stage-6"
-#     version: "{{ repo_branch }}"
-#     update: yes
-#     force: yes
-
-# - name: Ensure docker-compose.yml exists
-#   ansible.builtin.stat:
-#     path: "{{ repo_dest }}/DevOps-Stage-6/docker-compose.yaml"
-#   register: compose_file
-
-# - name: Fail if docker-compose.yml is missing
-#   ansible.builtin.fail:
-#     msg: "docker-compose.yml not found!"
-#   when: not compose_file.stat.exists
-
-# - name: Change to project directory
-#   ansible.builtin.set_fact:
-#     project_dir: "{{ repo_dest }}/DevOps-Stage-6"
-
-# - name: Create letsencrypt directory exists
-#   ansible.builtin.file:
-#     path: "{{ repo_dest }}/DevOps-Stage-6/letsencrypt"
-#     state: directory
-#     mode: '0755'
-
-# - name: Create acme.json file exists
-#   ansible.builtin.file:
-#     path: "{{ repo_dest }}/DevOps-Stage-6/letsencrypt/acme.json"
-#     state: touch
-#     mode: '0600'
-
-# - name: Run Docker Compose (Compose V2)
-#   community.docker.docker_compose_v2:
-#     project_src: "{{ repo_dest }}/DevOps-Stage-6"
-#     state: present
-#     services: "{{ service_name | default(omit) }}"
-
-# - name: Create application directory
-#   ansible.builtin.file:
-#   path: /var/www/repo
-#   state: directory
-#   owner: root
-#   group: root
-#   mode: '0755'
-
-# - name: Copy Docker Compose file
-#   ansible.builtin.copy:
-#   src: "{{ playbook_dir }}/../../docker-compose.yaml"
-#   dest: /var/www/repo/docker-compose.yaml
-#   owner: root
-#   group: root
-#   mode: '0644'
-
-# - name: Verify Docker Compose file exists
-#   ansible.builtin.stat:
-#   path: /var/www/repo/docker-compose.yaml
-#   register: compose_file
-
-# - name: Fail if Docker Compose file is missing
-#   ansible.builtin.fail:
-#   msg: "Docker Compose file was not copied successfully!"
-#   when: not compose_file.stat.exists
-
 - name: Create application directory
   ansible.builtin.file:
     path: /var/www/repo
     state: directory
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: '0755'
 
 - name: Copy Docker Compose file
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../docker-compose.yaml"
     dest: /var/www/repo/docker-compose.yaml
-    owner: root
-    group: root
-    mode: '0644'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0664'
 
 - name: Copy environment file (.env)
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../.env"
     dest: /var/www/repo/.env
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: '0600'
 
 - name: Copy Caddy configuration file
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../Caddyfile"
     dest: /var/www/repo/Caddyfile
-    owner: root
-    group: root
-    mode: '0644'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0664'
 
 - name: Start Docker Compose services
   community.docker.docker_compose_v2:

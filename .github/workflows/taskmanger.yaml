@@ -65,6 +65,7 @@ jobs:
           push: true
           tags: oluchioraekwe/task-app:v${{ github.run_id }}
 
+  # Job 3: Fetch server details and deploy using modular server-side SSH steps
   deploy:
     runs-on: ubuntu-latest
     needs: docker
@@ -97,22 +98,23 @@ jobs:
           echo "server_host=${SERVER_HOST}" >> $GITHUB_OUTPUT
           echo "server_user=${SERVER_USER}" >> $GITHUB_OUTPUT
 
-      - name: Update taskmanager-app image in docker-compose.yaml
-        uses: mikefarah/yq@v4.44.3
-        with:
-          cmd: yq eval '.services.taskmanager-app.image = "${{ needs.docker.outputs.image_tag }}"' -i docker-compose.yaml
-
-      - name: Copy docker-compose.yaml to server
-        uses: appleboy/scp-action@v0.1.7
+      # Step 1: Verify yq is installed on the remote server
+      - name: Verify yq Installation on Server
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ steps.tf_outputs.outputs.server_host }}
           username: ${{ steps.tf_outputs.outputs.server_user }}
           key: ${{ secrets.PRIVATE_KEY }}
-          source: "docker-compose.yaml"
-          target: "/var/www/repo"
-          overwrite: true
+          script: |
+            if ! command -v yq &> /dev/null; then
+              echo "::error::yq is not installed or not available in PATH on the server."
+              exit 1
+            fi
+            echo "yq version:"
+            yq --version
 
-      - name: Deploy updated service
+      # Step 2: Update docker-compose.yaml on the server using yq
+      - name: Update docker-compose.yaml on Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ steps.tf_outputs.outputs.server_host }}
@@ -120,13 +122,29 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /var/www/repo
+
+            # Update image tag in-place using server yq
+            yq eval '.services.taskmanager-app.image = "${{ needs.docker.outputs.image_tag }}"' -i docker-compose.yaml
+
+            # Print updated file for verification
             cat docker-compose.yaml
 
-            # Pull newly updated image tag and recreate only taskmanager-app
-            sudo docker compose pull taskmanager-app
-            sudo docker compose up -d taskmanager-app
+      # Step 3: Deploy updated container and verify status
+      - name: Run Updated Docker Containers
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ steps.tf_outputs.outputs.server_host }}
+          username: ${{ steps.tf_outputs.outputs.server_user }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            cd /var/www/repo
 
-            sudo docker compose ps taskmanager-app
+            # Pull newly updated image tag and recreate only taskmanager-app
+            docker compose pull taskmanager-app
+            docker compose up -d taskmanager-app
+
+            # Check container status
+            docker compose ps taskmanager-app
 
             # Clean up old unused images
-            sudo docker image prune -f
+            docker image prune -f
