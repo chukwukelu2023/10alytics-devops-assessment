@@ -107,6 +107,7 @@ jobs:
 
           chmod 600 ~/.ssh/ansible_key
       - name: create .env
+        working-directory: ${{ github.workspace }}
         run: |
             cat <<EOF > .env
             PORT=${{ vars.PORT }}
