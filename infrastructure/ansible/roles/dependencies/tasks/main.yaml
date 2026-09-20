@@ -4,12 +4,18 @@
     update_cache: yes
   when: ansible_facts['os_family'] == 'Debian'
 
-- name: Install Git and yq
+- name: Install Git
   ansible.builtin.package:
-    name:
-      - git
-      - yq
+    name: git
     state: present
+
+- name: Download and install yq binary
+  ansible.builtin.get_url:
+    url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+    dest: /usr/local/bin/yq
+    mode: '0755'
+    owner: root
+    group: root
 
 - name: Install required packages
   ansible.builtin.apt:
