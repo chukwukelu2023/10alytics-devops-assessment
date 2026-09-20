@@ -16,6 +16,11 @@ permissions:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
     defaults:
       run:
@@ -49,18 +54,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Init
+      - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
         run:  terraform plan -out=tfplan
 
       - name: Terraform Apply
-        env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         run: terraform apply tfplan
 
   
