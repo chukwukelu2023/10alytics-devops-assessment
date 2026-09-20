@@ -45,7 +45,7 @@ provider "cloudflare" {
   #   api_token = var.cloudflare_api_token
 }
 
-# provider "azapi" {
+provider "azapi" {
 #   use_cli = false
 #   use_msi = false
-# }
+}
