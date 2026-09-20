@@ -12,12 +12,6 @@ locals {
         repository  = vm_config.repository
         secret_name = "SERVER_HOST"
         value       = module.virtual_machine[vm_key].public_ip_address
-      },
-      {
-        vm_key      = vm_key
-        repository  = vm_config.repository
-        secret_name = "PRIVATE_KEY"
-        value       = module.virtual_machine[vm_key].ssh_private_key
       }
     ]
   ])

@@ -5,10 +5,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "=5.0.0"
     }
-    azapi = {
-      source  = "azure/azapi"
-      version = "~>1.5"
-    }
 
     cloudflare = {
       source  = "cloudflare/cloudflare"
@@ -43,11 +39,4 @@ provider "github" {
 
 provider "cloudflare" {
   #   api_token = var.cloudflare_api_token
-}
-
-provider "azapi" {
-  client_id       = var.client_id
-  client_secret   = var.client_secret
-  subscription_id = var.subscription_id
-  tenant_id       = var.tenant_id
 }

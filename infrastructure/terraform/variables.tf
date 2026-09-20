@@ -160,20 +160,7 @@ variable "cloudflare_proxy" {
 #   description = "Clouflare Token for Atuntication"
 # }
 
-variable "client_id" {
-  type    = string
-  default = null
-}
-variable "client_secret" {
+variable "ssh_public_key" {
   type      = string
-  default   = null
   sensitive = true
-}
-variable "tenant_id" {
-  type    = string
-  default = null
-}
-variable "subscription_id" {
-  type    = string
-  default = null
 }

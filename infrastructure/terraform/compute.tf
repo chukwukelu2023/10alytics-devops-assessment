@@ -46,6 +46,7 @@ module "virtual_machine" {
   bootdiagnostic-storage-account-uri = data.azurerm_storage_account.this.primary_blob_endpoint
   custom-data                        = filebase64("${path.module}/cloud-init.yaml")
   computer-name                      = each.value.computer-name
+  public-ssh-key                     = coalesce(each.value.public-ssh-key, var.ssh_public_key)
   tags                               = each.value.tags
 }
 
