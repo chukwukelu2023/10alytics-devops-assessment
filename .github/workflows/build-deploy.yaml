@@ -4,7 +4,6 @@ env:
   TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-  TF_VAR_ssh_public_key: ${{ secrets.PUBLIC_KEY }}
 on:
   workflow_dispatch:
 
@@ -25,6 +24,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup SSH Public Key
+        env:
+          SSH_KEY: ${{ secrets.PUBLIC_KEY }}
+        run: |
+          if [ -z "$SSH_KEY" ]; then
+            echo "ERROR: The 'SSH_PUBLIC_KEY' secret is missing or empty!"
+            exit 1
+          fi
+
+          echo "PUBLIC_KEY secret found."
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa.pub
+          chmod 644 ~/.ssh/id_rsa.pub
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

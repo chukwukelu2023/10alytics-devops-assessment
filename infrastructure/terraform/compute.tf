@@ -27,7 +27,7 @@ resource "azurerm_public_ip" "this" {
 
 module "virtual_machine" {
   for_each                           = var.vm-specification
-  source                             = "git::https://github.com/chukwukelu2023/linux-server-module.git?ref=v1.0.0"
+  source                             = "git::https://github.com/chukwukelu2023/linux-server-module.git?ref=v1.0.3"
   vm-location                        = each.value.vm-location
   environment                        = each.value.environment
   project                            = each.value.project
@@ -46,7 +46,7 @@ module "virtual_machine" {
   bootdiagnostic-storage-account-uri = data.azurerm_storage_account.this.primary_blob_endpoint
   custom-data                        = filebase64("${path.module}/cloud-init.yaml")
   computer-name                      = each.value.computer-name
-  public-ssh-key                     = coalesce(each.value.public-ssh-key, var.ssh_public_key)
+  public-ssh-key                     = file("~/.ssh/id_rsa.pub")
   tags                               = each.value.tags
 }
 

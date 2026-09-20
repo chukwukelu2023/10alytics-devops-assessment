@@ -160,7 +160,7 @@ variable "cloudflare_proxy" {
 #   description = "Clouflare Token for Atuntication"
 # }
 
-variable "ssh_public_key" {
-  type      = string
-  sensitive = true
-}
+# variable "ssh_public_key" {
+#   type      = string
+#   sensitive = true
+# }
