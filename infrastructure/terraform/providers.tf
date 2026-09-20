@@ -11,11 +11,6 @@ terraform {
       version = "5.13.0"
     }
 
-    # github = {
-    #   source  = "integrations/github"
-    #   version = "~> 6.0"
-    # }
-
   }
 
   backend "azurerm" {
@@ -30,10 +25,6 @@ provider "azurerm" {
   features {
   }
 }
-
-# provider "github" {
-#   #   token = var.github_token # or `GITHUB_TOKEN`
-# }
 
 provider "cloudflare" {
 }

@@ -3,13 +3,14 @@ name: deploy resources
 env:
   TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  # GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 on:
   workflow_dispatch:
 
   push:
     branches:
       - main
+    paths:
+      - 'infrastructure/**'
 permissions:
   contents: write
 

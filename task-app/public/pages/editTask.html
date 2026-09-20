@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../stylesheets/signup.css">
+    <title>Tasks</title>
+</head>
+<body>
+        <div class="container">
+            <div class="center">
+                <h1>Edit Task</h1>
+                <form action="" id="editTaskForm">
+                    <div class="txt_field">
+                        <input type="number" id="id" name="id" required>
+                        <span></span>
+                        <label>Task ID</label>
+                    </div>
+                    <div class="txt_field">
+                        <input type="text" id="title" name="title">
+                        <span></span>
+                        <label>Title</label>
+                    </div>
+                    <div class="txt_field">
+                        <input type="text" name="description" id="description">
+                        <span></span>
+                        <label>Description</label>
+                    </div>
+                    <div class="txt_field">
+                        <select id="status" name="status" class="status">
+                            <option value="PENDING">PENDING</option>
+                            <option value="PROGRESS">PROGRESS</option>
+                            <option value="ONHOLD">ONHOLD</option>
+                          </select>
+                        <span></span>
+                        <label></label>
+                    </div>
+                    <button type="submit">SUBMIT</button>   
+                    <div class="signup_link">
+                        Go <a href="./users.html">back</a> to Your Page
+                    </div>         
+                </form>
+            </div>
+        </div>
+        
+    <script src="../javascripts/pages/editTask.js"></script>
+</body>
+</html>
+
+

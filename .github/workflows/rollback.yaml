@@ -1,0 +1,77 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to roll back to (e.g. oluchioraekwe/task-app:v12345 or oluchioraekwe/task-app:latest)'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Fetch Server Details from Terraform State
+        id: tf_outputs
+        working-directory: ./infrastructure/terraform
+        run: |
+          terraform init
+          
+          SERVER_HOST=$(terraform output -raw vm-public-ip)
+          SERVER_USER=$(terraform output -raw vm-admin-username)
+
+          if [ -z "$SERVER_HOST" ] || [ -z "$SERVER_USER" ]; then
+            echo "::error::Failed to retrieve Terraform outputs from state."
+            exit 1
+          fi
+
+          echo "server_host=${SERVER_HOST}" >> $GITHUB_OUTPUT
+          echo "server_user=${SERVER_USER}" >> $GITHUB_OUTPUT
+
+      - name: Update taskmanager-app image in docker-compose.yaml
+        uses: mikefarah/yq-action@v4.44.3
+        with:
+          cmd: yq eval '.services.taskmanager-app.image = "${{ inputs.image_tag }}"' -i docker-compose.yaml
+
+      - name: Copy docker-compose.yaml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ steps.tf_outputs.outputs.server_host }}
+          username: ${{ steps.tf_outputs.outputs.server_user }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yaml"
+          target: "/var/www/repo"
+
+      - name: Deploy rollback image
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ steps.tf_outputs.outputs.server_host }}
+          username: ${{ steps.tf_outputs.outputs.server_user }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/repo
+            
+            echo "::notice::Rolling back taskmanager-app to image: ${{ inputs.image_tag }}"
+            cat docker-compose.yaml
+
+            # Force pull specified image tag and recreate taskmanager-app container
+            docker compose pull taskmanager-app
+            docker compose up -d taskmanager-app
+
+            # Verify container status
+            docker compose ps taskmanager-app
+
+            # Clean up dangling images
+            docker image prune -f
