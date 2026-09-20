@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="dashboard__container">
+         <h1>Welcome</h1>
+        </div>
+        <div class="dashboard__btn" >
+            <button id="signout" class="signout" >
+                Logout
+              </button>
+        </div>
+        
+      </div>
+        <div class="greet" id="greet"></div>
+        <div id="taskData"></div>
+    <div id="taskActions">
+        <button id="createTask" class="taskButton">CREATE TASK</button>
+        <button id="editTask" class="taskButton">EDIT TASK</button>
+        <button id="completeTask" class="taskButton">COMPLETE TASK</button>
+        <button id="deleteTask" class="taskButton">DELETE TASK</button>
+    </div>
+    <footer>
+        <p id="machine" class="machine">The Detais of the machine is listed below</p>
+        <span id="footer" class="footer"></span>
+    </footer>
+    <script src="../javascripts/pages/users.js"></script>
+
+</body>
+</html>
