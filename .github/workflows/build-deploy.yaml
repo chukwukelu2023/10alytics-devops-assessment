@@ -44,6 +44,12 @@ jobs:
           echo "$SSH_KEY" > ~/.ssh/id_rsa.pub
           chmod 644 ~/.ssh/id_rsa.pub
 
+      - name: Configure Git
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+            git config --global url."https://${GH_PAT}@github.com/".insteadOf "https://github.com/"
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
