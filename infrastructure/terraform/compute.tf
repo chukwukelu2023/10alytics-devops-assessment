@@ -27,7 +27,7 @@ resource "azurerm_public_ip" "this" {
 
 module "virtual_machine" {
   for_each                           = var.vm-specification
-  source                             = "git::https://github.com/chukwukelu2023/linux-server-module.git?ref=v1.0.3"
+  source                             = "git::https://github.com/TEHC-Louisville/linux-server-module.git?ref=v1.0.0"
   vm-location                        = each.value.vm-location
   environment                        = each.value.environment
   project                            = each.value.project
