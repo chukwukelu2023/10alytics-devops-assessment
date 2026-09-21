@@ -12,7 +12,8 @@ A monorepo demonstrating an end-to-end DevOps workflow: infrastructure provision
 │   ├── build-deploy.yaml  # Terraform + Ansible (infrastructure)
 │   ├── taskmanger.yaml    # Build, push and deploy the app image
 │   ├── rollback.yaml      # Roll back to a previous image tag
-│   └── destroy.yaml       # Tear down all Azure resources
+│   ├── destroy.yaml       # Tear down all Azure resources
+│   └── trivy-scan.yaml    # Trivy security scans (IaC, deps, image)
 ├── infrastructure/
 │   ├── terraform/         # Azure VM, network, NSG, Cloudflare DNS
 │   └── ansible/           # Server bootstrap + app deployment roles
@@ -62,7 +63,7 @@ Provisions on Azure, with state stored remotely in an Azure Storage backend:
 - Ubuntu 22.04 VM (`Standard_B2ms`) via the reusable [`linux-server-module`](https://github.com/chukwukelu2023/linux-server-module), pinned to `v1.0.3`
 - NSG with rules for 22, 80 and 443, driven by a `dynamic` block over the `nsg-rules` map
 - Cloudflare A record pointing at the VM's public IP
-- `cloud-init.yaml` installs Python 3 so Ansible can run
+- `cloud-init.yaml` installs Python 3 so So that any app that requires it will run smoothly
 
 VM sizing, image, tags and location are all declared in `terraform.tfvars` under a `vm-specification` map, so adding a second VM is a map entry rather than a new resource block.
 
