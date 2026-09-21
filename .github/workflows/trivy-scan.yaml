@@ -1,0 +1,104 @@
+name: Trivy Security Scan
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # Scan Terraform code for infrastructure misconfigurations
+  terraform-scan:
+    name: Scan Infrastructure Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy config scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: ./infrastructure
+          format: sarif
+          output: trivy-terraform.sarif
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          exit-code: '0'
+          skip-dirs: 'infrastructure/terraform/.terraform'
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-terraform.sarif
+          category: trivy-terraform
+
+  # Scan application dependencies and look for committed secrets
+  app-scan:
+    name: Scan Application Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: ./task-app
+          scanners: 'vuln,secret'
+          format: sarif
+          output: trivy-app.sarif
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          exit-code: '0'
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-app.sarif
+          category: trivy-app
+
+  # Build the image locally and scan it for OS and library CVEs
+  image-scan:
+    name: Scan Container Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image for scanning
+        uses: docker/build-push-action@v7
+        with:
+          context: ./task-app
+          push: false
+          load: true
+          tags: task-app:scan
+
+      - name: Run Trivy image scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: task-app:scan
+          format: sarif
+          output: trivy-image.sarif
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image

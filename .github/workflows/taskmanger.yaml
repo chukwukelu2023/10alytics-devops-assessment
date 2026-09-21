@@ -126,9 +126,6 @@ jobs:
             # Update image tag in-place using server yq
             yq eval '.services.taskmanager-app.image = "${{ needs.docker.outputs.image_tag }}"' -i docker-compose.yaml
 
-            # Print updated file for verification
-            cat docker-compose.yaml
-
       # Step 3: Deploy updated container and verify status
       - name: Run Updated Docker Containers
         uses: appleboy/ssh-action@v1.0.3
